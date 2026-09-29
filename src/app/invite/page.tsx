@@ -3,17 +3,21 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
+  BackLink,
   Card,
   Disclaimer,
   DocNotice,
   PageTitle,
   PrimaryButton,
+  ProbabilityBar,
+  RiskMeter,
   SecondaryButton,
   Field,
   VerdictBadge,
   inputCls,
 } from "@/components/ui";
 import { getPairing, getRhNote } from "@/lib/compatibility";
+import { barsFor } from "@/lib/bars";
 import type { Abo, Genotype, Rh } from "@/lib/compatibility";
 import { encodeShareBack } from "@/lib/session";
 
@@ -98,6 +102,7 @@ function InviteInner() {
   if (phase === "invalid") {
     return (
       <>
+        <BackLink href="/" label="About GenoCheck" />
         <PageTitle title="This invite link doesn't work" sub={invalidReason} />
         <Card>
           <p className="text-sm leading-6 text-stone-700">
@@ -125,15 +130,21 @@ function InviteInner() {
     });
     return (
       <>
+        <BackLink href="/" label="About GenoCheck" />
         <PageTitle title="Your pairing result" sub={`Their genotype: ${inviterG} · Yours: ${genotype}`} />
         <Card>
           <VerdictBadge level={pairing.level} />
-          <h2 className="mt-3 text-base font-bold text-stone-900">{pairing.title}</h2>
+          <div className="mt-4">
+            <RiskMeter level={pairing.level} />
+          </div>
+          <h2 className="mt-4 text-base font-bold text-stone-900">{pairing.title}</h2>
           <p className="mt-2 text-sm leading-6 text-stone-700">{pairing.why}</p>
-          <p className="mt-3 rounded-xl bg-stone-100 p-4 text-sm text-stone-700">
-            <span className="font-semibold">Likely pattern: </span>
-            {pairing.childPattern}
-          </p>
+          <div className="mt-4 rounded-xl bg-stone-100 p-4">
+            <p className="mb-2 text-xs font-bold tracking-wide text-stone-500">
+              LIKELY PATTERN — EACH PREGNANCY
+            </p>
+            <ProbabilityBar segments={barsFor(inviterG as Genotype, genotype as Genotype)} />
+          </div>
           {rhNote.show && (
             <p className="mt-3 rounded-xl bg-sky-50 p-4 text-sm leading-6 text-sky-900">{rhNote.text}</p>
           )}
@@ -162,6 +173,7 @@ function InviteInner() {
 
   return (
     <>
+      <BackLink href="/" label="About GenoCheck" />
       <PageTitle
         title="You've been invited to check compatibility"
         sub={`Your partner's confirmed genotype is ${inviterG}. Add your own result below — you'll both get the pairing read, and they will never see your document.`}

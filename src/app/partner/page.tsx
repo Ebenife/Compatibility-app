@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  BackLink,
   Card,
   Disclaimer,
   PageTitle,
@@ -115,7 +116,6 @@ export default function PartnerPage() {
     s.partner = rec;
     s.partnerSet = true;
     s.inviteCompleted = true;
-    s.inviteToken = s.inviteToken;
     saveSession(s);
     router.push("/pairing");
   }
@@ -158,6 +158,7 @@ export default function PartnerPage() {
 
   return (
     <>
+      <BackLink href="/profile" label="Your result" />
       <Stepper active={3} />
       <PageTitle
         title="Bring in a partner (optional)"
@@ -165,12 +166,22 @@ export default function PartnerPage() {
       />
 
       <Card>
-        <h2 className="text-base font-bold text-stone-900">Option 1 · Invite them (preferred)</h2>
-        <p className="mt-1 text-sm leading-6 text-stone-600">
-          They get a link, upload and confirm their own document, and see the pairing
-          result themselves. The link stays open until you send a new one — sending a
-          new invite replaces the old link.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-bold text-stone-900">Option 1 · Invite them (preferred)</h2>
+            <p className="mt-1 text-sm leading-6 text-stone-600">
+              They get a link, upload and confirm their own document, and see the pairing
+              result themselves. The link stays open until you send a new one — sending a
+              new invite replaces the old link.
+            </p>
+          </div>
+          <svg viewBox="0 0 64 64" className="h-14 w-14 shrink-0" aria-hidden>
+            <rect x="6" y="14" width="52" height="36" rx="8" fill="#e8f3ec" />
+            <path d="M12 22 L32 34 L52 22" fill="none" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="48" cy="46" r="10" fill="#1c1917" />
+            <path d="M44 46 L47 49 L53 43" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
         {!inviteLink ? (
           <div className="mt-4">
             <PrimaryButton onClick={createInvite}>Generate invite link</PrimaryButton>
@@ -202,11 +213,23 @@ export default function PartnerPage() {
       </Card>
 
       <Card className="mt-4">
-        <h2 className="text-base font-bold text-stone-900">Option 2 · Add their result on their behalf</h2>
-        <p className="mt-1 text-sm leading-6 text-stone-600">
-          For when they aren&apos;t doing this themselves. Only upload a document you
-          have the right to share.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-bold text-stone-900">Option 2 · Add their result on their behalf</h2>
+            <p className="mt-1 text-sm leading-6 text-stone-600">
+              For when they aren&apos;t doing this themselves. Only upload a document you
+              have the right to share.
+            </p>
+          </div>
+          <svg viewBox="0 0 64 64" className="h-14 w-14 shrink-0" aria-hidden>
+            <rect x="14" y="6" width="36" height="48" rx="6" fill="#fff" stroke="#e7e5e4" strokeWidth="2.5" />
+            <rect x="21" y="14" width="16" height="5" rx="2.5" fill="#1c1917" />
+            <rect x="21" y="23" width="22" height="4" rx="2" fill="#e7e5e4" />
+            <rect x="21" y="30" width="22" height="4" rx="2" fill="#e7e5e4" />
+            <circle cx="43" cy="43" r="11" fill="#b45309" />
+            <path d="M43 38 v6 M43 48 v.5" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </div>
         <label className="mt-3 flex items-start gap-2 text-xs leading-5 text-stone-700">
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" />
           <span>I confirm I have the partner&apos;s permission to upload or enter their result here.</span>

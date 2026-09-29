@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  BackLink,
   Card,
   Disclaimer,
   ListingNote,
@@ -27,15 +28,19 @@ const AREAS: (ProviderArea | "All")[] = ["All", "Lagos", "Abuja", "Ibadan", "Gen
 export default function ConsultPage() {
   const [path, setPath] = useState<ProviderPath | "all">("all");
   const [area, setArea] = useState<ProviderArea | "All">("All");
+  const [query, setQuery] = useState("");
 
+  const q = query.trim().toLowerCase();
   const filtered = PROVIDERS.filter(
     (p) =>
       (path === "all" || p.paths.includes(path)) &&
-      (area === "All" || p.area === area)
+      (area === "All" || p.area === area) &&
+      (!q || `${p.name} ${p.detail}`.toLowerCase().includes(q))
   );
 
   return (
     <>
+      <BackLink href="/" label="Home" />
       <PageTitle
         title="Consults & costs"
         sub="Hand-picked starting points in your general area — several options per path, never a single recommendation. Contact them yourself and compare."
@@ -72,6 +77,20 @@ export default function ConsultPage() {
         ))}
       </div>
 
+      <div className="mb-4">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by keyword — e.g. sickle cell, IVF, Ibadan…"
+          className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+        />
+      </div>
+
+      <p className="mb-3 text-xs font-semibold text-stone-500">
+        {filtered.length} {filtered.length === 1 ? "provider" : "providers"} found
+        {area !== "All" ? ` in ${area}` : ""}
+      </p>
+
       {filtered.length === 0 ? (
         <Card>
           <p className="text-sm leading-6 text-stone-700">
@@ -84,13 +103,29 @@ export default function ConsultPage() {
         <div className="grid gap-4">
           {filtered.map((p) => (
             <Card key={p.name}>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-sm font-bold text-stone-900">{p.name}</h2>
+              <div className="flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-sm font-bold text-white"
+                >
+                  {p.name.charAt(0)}
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-sm font-bold text-stone-900">{p.name}</h2>
+                  <p className="mt-0.5 text-xs font-semibold text-stone-500">{p.area}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {p.paths.map((x) => (
+                      <span
+                        key={x}
+                        className="rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-semibold text-stone-700"
+                      >
+                        {PATH_LABEL[x]}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <p className="mt-1 text-xs font-semibold text-stone-500">
-                {p.area} · {p.paths.map((x) => PATH_LABEL[x]).join(" · ")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-stone-700">{p.detail}</p>
+              <p className="mt-3 text-sm leading-6 text-stone-700">{p.detail}</p>
             </Card>
           ))}
         </div>

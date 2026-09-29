@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  BackLink,
   Card,
   Disclaimer,
   DocNotice,
@@ -22,6 +23,7 @@ const ACCEPTED = ["image/jpeg", "image/png", "image/heic", "image/heif", "applic
 type Mode = "upload" | "manual";
 type Status =
   | "empty"
+  | "review"
   | "uploading"
   | "failed"
   | "too-large"
@@ -35,6 +37,7 @@ export default function UploadPage() {
   const [status, setStatus] = useState<Status>("empty");
   const [errorDetail, setErrorDetail] = useState("");
   const [fileName, setFileName] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   // Manual-entry fields (first-class fallback, PRD §5)
   const [genotype, setGenotype] = useState("");
@@ -42,7 +45,7 @@ export default function UploadPage() {
   const [rh, setRh] = useState("unknown");
   const [rareNote, setRareNote] = useState("");
 
-  async function handleFile(file: File) {
+  async function stageFile(file: File) {
     setErrorDetail("");
     if (!ACCEPTED.includes(file.type) && file.type !== "") {
       setStatus("wrong-type");
@@ -52,7 +55,12 @@ export default function UploadPage() {
       setStatus("too-large");
       return;
     }
+    setPendingFile(file);
     setFileName(file.name);
+    setStatus("review");
+  }
+
+  async function handleFile(file: File) {
     setStatus("uploading");
     try {
       const form = new FormData();
@@ -115,6 +123,7 @@ export default function UploadPage() {
 
   return (
     <>
+      <BackLink href="/" label="Home" />
       <Stepper active={0} />
       <PageTitle
         title="Upload your genotype / blood-group result"
@@ -143,10 +152,18 @@ export default function UploadPage() {
             onDrop={(e) => {
               e.preventDefault();
               const f = e.dataTransfer.files?.[0];
-              if (f) void handleFile(f);
+              if (f) void stageFile(f);
             }}
           >
-            <p className="text-sm font-semibold text-stone-800">
+            <svg viewBox="0 0 72 56" className="mx-auto h-14" aria-hidden>
+              <rect x="14" y="4" width="44" height="48" rx="6" fill="#fff" stroke="#d6d3d1" strokeWidth="2.5" />
+              <rect x="22" y="12" width="20" height="6" rx="3" fill="#1c1917" />
+              <rect x="22" y="22" width="28" height="4" rx="2" fill="#e7e5e4" />
+              <rect x="22" y="29" width="28" height="4" rx="2" fill="#e7e5e4" />
+              <circle cx="50" cy="42" r="9" fill="#059669" />
+              <path d="M46 42 L49 45 L55 39" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <p className="mt-2 text-sm font-semibold text-stone-800">
               Drag your result here, or choose a file
             </p>
             <p className="mt-1 text-xs text-stone-500">
@@ -159,7 +176,7 @@ export default function UploadPage() {
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) void handleFile(f);
+                if (f) void stageFile(f);
               }}
             />
             <div className="mt-4">
@@ -171,6 +188,37 @@ export default function UploadPage() {
               <p className="mt-3 text-xs text-stone-500">Reading {fileName}…</p>
             )}
           </div>
+
+          {status === "review" && pendingFile && (
+            <div className="mt-4 rounded-xl border border-stone-300 bg-white p-4">
+              <p className="text-xs font-bold tracking-wide text-stone-500">ATTACHED DOCUMENT</p>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-stone-900">{fileName}</p>
+                  <p className="text-xs text-stone-500">
+                    {(pendingFile.size / 1024).toFixed(0)} KB ·{" "}
+                    {pendingFile.type.includes("pdf") ? "PDF" : "Image"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setPendingFile(null);
+                    setFileName("");
+                    setStatus("empty");
+                    if (fileRef.current) fileRef.current.value = "";
+                  }}
+                  className="shrink-0 rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="mt-3">
+                <PrimaryButton onClick={() => void handleFile(pendingFile)}>
+                  Read this document
+                </PrimaryButton>
+              </div>
+            </div>
+          )}
 
           {status === "empty" && (
             <p className="mt-3 text-xs text-stone-500">

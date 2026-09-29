@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  BackLink,
   Card,
   Disclaimer,
   PageTitle,
@@ -29,6 +30,7 @@ export default function AcceptPage() {
 
   return (
     <>
+      <BackLink href="/pairing" label="Pairing result" />
       <PageTitle
         title="Proceeding with open eyes"
         sub="This page is an acknowledgment for yourself — not a legal waiver, and it unlocks nothing. It exists so you can move forward informed."

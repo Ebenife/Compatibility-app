@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  BackLink,
   Card,
   Disclaimer,
   DocNotice,
@@ -37,7 +38,8 @@ function ProfileInner() {
   if (!own.genotype) {
     return (
       <>
-        <Stepper active={2} />
+        <BackLink href="/upload" label="Your document" />
+      <Stepper active={2} />
         <PageTitle title="Your result isn't covered here" />
         <Card>
           <p className="text-sm leading-6 text-stone-700">
@@ -68,6 +70,7 @@ function ProfileInner() {
 
   return (
     <>
+      <BackLink href="/upload" label="Your document" />
       <Stepper active={2} />
       <PageTitle
         title={`Your result: ${own.genotype}`}

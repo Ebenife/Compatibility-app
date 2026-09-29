@@ -3,16 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  BackLink,
   Card,
   Disclaimer,
   DocNotice,
   PageTitle,
   PrimaryButton,
+  ProbabilityBar,
+  RiskMeter,
   SecondaryButton,
   Stepper,
   VerdictBadge,
 } from "@/components/ui";
 import { getPairing, getRhNote, looksLikeDuplicate } from "@/lib/compatibility";
+import { barsFor } from "@/lib/bars";
 import type { Genotype } from "@/lib/compatibility";
 import { loadSession } from "@/lib/session";
 
@@ -45,6 +49,7 @@ export default function PairingPage() {
 
   return (
     <>
+      <BackLink href="/partner" label="Partner" />
       <Stepper active={4} />
       <PageTitle
         title={`Pairing: ${own.genotype} × ${partner.genotype}`}
@@ -58,13 +63,24 @@ export default function PairingPage() {
         </div>
       )}
       <Card>
-        <VerdictBadge level={pairing.level} />
-        <h2 className="mt-3 text-base font-bold text-stone-900">{pairing.title}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <VerdictBadge level={pairing.level} />
+          <span className="text-xs font-semibold text-stone-500">
+            {own.genotype} × {partner.genotype} · per pregnancy
+          </span>
+        </div>
+        <div className="mt-4">
+          <RiskMeter level={pairing.level} />
+        </div>
+        <h2 className="mt-4 text-base font-bold text-stone-900">{pairing.title}</h2>
         <p className="mt-2 text-sm leading-6 text-stone-700">{pairing.why}</p>
-        <p className="mt-3 rounded-xl bg-stone-100 p-4 text-sm text-stone-700">
-          <span className="font-semibold">Likely pattern: </span>
-          {pairing.childPattern}
-        </p>
+        <div className="mt-4 rounded-xl bg-stone-100 p-4">
+          <p className="mb-2 text-xs font-bold tracking-wide text-stone-500">
+            LIKELY PATTERN — EACH PREGNANCY
+          </p>
+          <ProbabilityBar segments={barsFor(own.genotype as Genotype, partner.genotype as Genotype)} />
+          <p className="mt-2 text-xs text-stone-500">{pairing.childPattern}</p>
+        </div>
         {rhNote.show && (
           <div className="mt-3 rounded-xl bg-sky-50 p-4">
             <p className="text-sm font-bold text-sky-900">Rh note (pregnancy context)</p>

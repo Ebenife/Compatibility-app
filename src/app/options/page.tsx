@@ -1,4 +1,5 @@
 import {
+  BackLink,
   Card,
   Disclaimer,
   ListingNote,
@@ -10,6 +11,7 @@ import { OPTION_PATHS } from "@/lib/content";
 export default function OptionsPage() {
   return (
     <>
+      <BackLink href="/pairing" label="Pairing result" />
       <PageTitle
         title="Paths that exist"
         sub="Described here so you know what's out there — not recommended, not ranked. What fits is for you, your partner, your doctor and your counselor to work out."

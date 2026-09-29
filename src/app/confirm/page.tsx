@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  BackLink,
   Card,
   Disclaimer,
   PageTitle,
   PrimaryButton,
   Stepper,
   Field,
+  VerifyRow,
   inputCls,
 } from "@/components/ui";
 import { loadSession, saveSession } from "@/lib/session";
@@ -62,6 +64,7 @@ export default function ConfirmPage() {
 
   return (
     <>
+      <BackLink href="/upload" label="Upload" />
       <Stepper active={1} />
       <PageTitle
         title="Check what we read"
@@ -80,8 +83,12 @@ export default function ConfirmPage() {
             High-confidence read — still, please verify each field before continuing.
           </div>
         )}
-        <div className="grid gap-4">
-          <Field label="Haemoglobin genotype">
+        <div className="grid gap-3">
+          <VerifyRow
+            label="1 · Haemoglobin genotype"
+            value={genotype && GENOTYPES.includes(genotype) ? genotype : ""}
+            status={genotype && GENOTYPES.includes(genotype) ? (confidence === "high" ? "clear" : "check") : "missing"}
+          >
             <select value={genotype} onChange={(e) => setGenotype(e.target.value)} className={inputCls}>
               <option value="">Select…</option>
               <option value="AA">AA</option>
@@ -92,14 +99,18 @@ export default function ConfirmPage() {
               <option value="OTHER">Something else / rare variant</option>
               <option value="UNKNOWN">Not shown / unclear</option>
             </select>
-          </Field>
+          </VerifyRow>
           {(genotype === "OTHER" || genotype === "UNKNOWN" || genotype === "") && (
             <Field label="What does your slip say, exactly?">
               <input value={rareNote} onChange={(e) => setRareNote(e.target.value)} className={inputCls} placeholder="Copy it letter-for-letter" />
             </Field>
           )}
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Blood group (ABO)">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <VerifyRow
+              label="2 · Blood group (ABO)"
+              value={abo !== "unknown" ? abo : ""}
+              status={abo !== "unknown" ? (confidence === "high" ? "clear" : "check") : "missing"}
+            >
               <select value={abo} onChange={(e) => setAbo(e.target.value)} className={inputCls}>
                 <option value="unknown">Not shown</option>
                 <option value="O">O</option>
@@ -107,14 +118,18 @@ export default function ConfirmPage() {
                 <option value="B">B</option>
                 <option value="AB">AB</option>
               </select>
-            </Field>
-            <Field label="Rhesus (RhD)">
+            </VerifyRow>
+            <VerifyRow
+              label="3 · Rhesus (RhD)"
+              value={rh !== "unknown" ? (rh === "positive" ? "Positive (+)" : "Negative (−)") : ""}
+              status={rh !== "unknown" ? (confidence === "high" ? "clear" : "check") : "missing"}
+            >
               <select value={rh} onChange={(e) => setRh(e.target.value)} className={inputCls}>
                 <option value="unknown">Not shown</option>
                 <option value="positive">Positive (+)</option>
                 <option value="negative">Negative (−)</option>
               </select>
-            </Field>
+            </VerifyRow>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Lab name (if visible)" hint="Optional — helps you remember which slip this was.">
